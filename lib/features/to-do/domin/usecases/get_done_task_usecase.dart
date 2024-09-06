@@ -3,12 +3,12 @@ import 'package:to_do_app/core/errors/failures.dart';
 import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
 import 'package:to_do_app/features/to-do/domin/repositores/task_repositore.dart';
 
-class GetDoneTasksUseCase {
+class GetTasksUseCase {
   final TaskRepositore taskRepositore;
 
-  GetDoneTasksUseCase({required this.taskRepositore});
+  GetTasksUseCase({required this.taskRepositore});
 
-  Future<Either<Failure, List<TaskEntity>>> call() async {
-    return await taskRepositore.getDoneTasks();
+  Future<Either<Failure, List<TodoEntity>>> call(bool getActive) async {
+    return await taskRepositore.getTasks(getActive);
   }
 }

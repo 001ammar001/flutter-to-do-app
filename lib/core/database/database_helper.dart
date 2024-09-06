@@ -5,9 +5,33 @@ import 'package:to_do_app/features/to-do/data/models/tag_model.dart';
 import 'package:to_do_app/features/to-do/data/models/task_model.dart';
 
 class DatabaseHelper {
-  final Database database;
+  static late Database database;
+  static const _databaseName = "toDo.db";
+  static const _databaseVersion = 1;
 
-  const DatabaseHelper({required this.database});
+  const DatabaseHelper();
+
+  static init() async {
+    database = await openDatabase(
+      _databaseName,
+      version: _databaseVersion,
+      onConfigure: (db) => db.execute("PRAGMA foreign_keys = ON"),
+      onCreate: (db, version) {
+        db.execute('''
+          CREATE TABLE tasks (
+            taskId INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            description TEXT NOT NULL,
+            urgent INTEGER NOT NULL,
+            done INTEGER NOT NULL,
+            tags TEXT NOT NULL
+          )
+          ''');
+      },
+    );
+  }
 
   Future<void> addTask(TaskModel task) async {
     List jsonTags = task.tags.map((tag) {
@@ -27,38 +51,45 @@ class DatabaseHelper {
     return Future.value();
   }
 
-  Future<List<TaskModel>> getPendindTasks() async {
-    final data = await database.rawQuery(
-      "SELECT * FROM tasks where tasks.done = 0",
+  Future<void> updateTask(TaskModel task) async {
+    List jsonTags = task.tags.map((tag) {
+      final tagModel = tag as TagModel;
+      return tagModel.toJSon();
+    }).toList();
+
+    await database.update(
+      'tasks',
+      where: "tasks.taskId = ?",
+      whereArgs: [task.id],
+      {
+        "title": task.title,
+        "date": task.date,
+        "time": task.time,
+        "description": task.description,
+        "urgent": task.urgent,
+        "done": task.done,
+        "tags": jsonEncode(jsonTags),
+      },
     );
-    return data.map((task) => TaskModel.fromJson(task)).toList();
+    return Future.value();
   }
 
-  Future<List<TaskModel>> getDoneTasks() async {
-    final data = await database.rawQuery(
-      "SELECT * FROM tasks where tasks.done = 1",
+  Future<List<TaskModel>> getTasks(bool getActive) async {
+    final data = await database.query(
+      "tasks",
+      where: "tasks.done = ?",
+      whereArgs: [getActive ? 0 : 1],
     );
     return data.map((task) => TaskModel.fromJson(task)).toList();
-  }
-
-  Future<List<TaskModel>> getFilterdTasks() async {
-    final data = await database.rawQuery(
-      "SELECT * FROM tasks where tasks.done = 1",
-    );
-    return data.map((task) => TaskModel.fromJson(task)).toList();
-  }
-
-  Future<void> deleteTask(int id) async {
-    await database.rawDelete('DELETE FROM tasks WHERE taskId = $id');
   }
 
   Future<void> deleteTasks(List<int> ids) async {
     await database.rawDelete(
-        'DELETE FROM tasks WHERE taskId IN (${ids.map((id) => id).toString()})');
+        'DELETE FROM tasks WHERE taskId IN ${ids.map((id) => id).toString()}');
   }
 
   Future<void> archiveTasks(List<int> ids) async {
     await database.rawUpdate(
-        "Update tasks SET done = 1 WHERE taskId IN (${ids.map((id) => id).toString()})");
+        "Update tasks SET done = 1 WHERE taskId IN ${ids.map((id) => id).toString()}");
   }
 }

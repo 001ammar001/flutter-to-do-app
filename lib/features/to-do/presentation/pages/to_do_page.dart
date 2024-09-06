@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_app/core/widgets/floating_button.dart';
 import 'package:to_do_app/core/widgets/painter.dart';
 import 'package:to_do_app/features/to-do/presentation/bloc/to_do_bloc/task_bloc.dart';
-import 'package:to_do_app/features/to-do/presentation/pages/calendar_body.dart';
-import 'package:to_do_app/features/to-do/presentation/pages/home_body.dart';
+import 'package:to_do_app/features/to-do/presentation/pages/stats_page.dart';
+import 'package:to_do_app/features/to-do/presentation/pages/home_page.dart';
+import 'package:to_do_app/features/to-do/presentation/widgets/add_todo_button.dart';
 
 class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
@@ -14,86 +14,60 @@ class ToDoPage extends StatefulWidget {
 }
 
 class _ToDoPageState extends State<ToDoPage> {
-  GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
   int currentIndex = 0;
   final icons = [
     Icons.home,
-    Icons.calendar_month,
     Icons.bar_chart_sharp,
-    Icons.person
   ];
   final homes = [
     const HomeBody(),
-    const CalendarBody(),
+    const StatsBody(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.sizeOf(context);
     return Scaffold(
-      key: key,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: const AddTodoButton(),
+      bottomNavigationBar: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          CustomPaint(
+            size: Size(size.width, 80),
+            painter: BNBCustomPainter(),
+          ),
+          Container(
+            height: 80,
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var index = 0; index < icons.length; index++)
+                  IconButton(
+                    iconSize: 40,
+                    icon: Icon(
+                      icons[index],
+                      color: currentIndex == index
+                          ? Colors.black
+                          : Colors.grey.shade400,
+                    ),
+                    onPressed: () {
+                      changeIndex(index);
+                      BlocProvider.of<TasksBloc>(context).add(GetTasksEvent());
+                    },
+                  ),
+              ],
+            ),
+          )
+        ],
+      ),
       body: SafeArea(
         bottom: false,
-        child: Stack(
-          children: [
-            homes[currentIndex],
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: SizedBox(
-                width: size.width,
-                height: 80,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    CustomPaint(
-                      size: Size(size.width, 80),
-                      painter: BNBCustomPainter(),
-                    ),
-                    const FlotingButton(),
-                    SizedBox(
-                      width: size.width,
-                      height: 80,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(12),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: icons.length,
-                        itemBuilder: (context, index) => IconButton(
-                            icon: Icon(
-                              icons[index],
-                              color: currentIndex == index
-                                  ? Colors.black
-                                  : Colors.grey.shade400,
-                            ),
-                            onPressed: () {
-                              changeIndex(index);
-                              switch (index) {
-                                case 0:
-                                  BlocProvider.of<TaskBloc>(context)
-                                      .add(GetPedningTasksEvent());
-                                case 1:
-                                  BlocProvider.of<TaskBloc>(context)
-                                      .add(GetPedningTasksEvent());
-                              }
-                            }),
-                        separatorBuilder: (context, index) {
-                          if (index == 1) {
-                            return SizedBox(
-                              width: size.width * 0.25,
-                            );
-                          } else {
-                            return SizedBox(
-                              width: size.width * 0.10,
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        child: IndexedStack(
+          index: currentIndex,
+          children: homes,
         ),
       ),
     );

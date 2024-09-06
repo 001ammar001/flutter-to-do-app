@@ -11,7 +11,7 @@ class WelcomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        text: "Good evening, Betty!\n",
+        text: "Will Hello!\n",
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           color: Colors.black,

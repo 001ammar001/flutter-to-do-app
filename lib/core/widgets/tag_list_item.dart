@@ -15,7 +15,7 @@ class TagListItem extends StatelessWidget {
         horizontal: 12,
       ),
       decoration: BoxDecoration(
-        color: myColors[item.color].shade100,
+        color: tagColors[item.color].shade100,
         borderRadius: BorderRadius.circular(6),
         border: isChoosed ? Border.all(color: Colors.black, width: 2) : null,
       ),

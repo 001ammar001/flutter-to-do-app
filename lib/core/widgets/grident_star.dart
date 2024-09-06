@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 
-Widget gridentIconStar({
-  required startColor,
-  required endColor,
-  size = 40.0,
-}) =>
-    ShaderMask(
+class GridentStar extends StatelessWidget {
+  final Color startColor;
+  final Color endColor;
+  final double size;
+
+  const GridentStar({
+    super.key,
+    required this.startColor,
+    required this.endColor,
+    this.size = 40,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
       blendMode: BlendMode.srcIn,
       shaderCallback: (Rect bounds) => LinearGradient(
         stops: const [0.3, 1],
@@ -15,3 +24,5 @@ Widget gridentIconStar({
       ).createShader(bounds),
       child: Icon(Icons.star_rounded, size: size),
     );
+  }
+}

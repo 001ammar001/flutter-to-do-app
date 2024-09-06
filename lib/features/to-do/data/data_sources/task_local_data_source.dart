@@ -3,12 +3,9 @@ import 'package:to_do_app/core/errors/exceptions.dart';
 import 'package:to_do_app/features/to-do/data/models/task_model.dart';
 
 abstract class LocalDataSource {
-  Future<List<TaskModel>> getPendingTasks();
-  Future<List<TaskModel>> getDoneTasks();
-  Future<List<TaskModel>> getFilterdTasks();
+  Future<List<TaskModel>> getTasks(bool getActive);
   Future<void> addTask(TaskModel task);
   Future<void> updateTask(TaskModel task);
-  Future<void> deleteTask(int id);
   Future<void> deleteTasks(List<int> ids);
   Future<void> archiveTasks(List<int> ids);
 }
@@ -29,36 +26,18 @@ class SqfliteLocalDataSource extends LocalDataSource {
   }
 
   @override
-  Future<void> deleteTask(int id) async {
-    await _tryProtectedFunction(databaseHelper.deleteTask(id));
-  }
-
-  @override
   Future<void> deleteTasks(List<int> ids) async {
     await _tryProtectedFunction(databaseHelper.deleteTasks(ids));
   }
 
   @override
-  Future<List<TaskModel>> getPendingTasks() async {
-    return await _tryProtectedFunction(databaseHelper.getPendindTasks())
-        as List<TaskModel>;
+  Future<void> updateTask(TaskModel task) async {
+    await _tryProtectedFunction(databaseHelper.updateTask(task));
   }
 
   @override
-  Future<void> updateTask(TaskModel task) {
-    // TODO: implement updateTask
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<TaskModel>> getDoneTasks() async {
-    return await _tryProtectedFunction(databaseHelper.getDoneTasks())
-        as List<TaskModel>;
-  }
-
-  @override
-  Future<List<TaskModel>> getFilterdTasks() async {
-    return await _tryProtectedFunction(databaseHelper.getFilterdTasks())
+  Future<List<TaskModel>> getTasks(bool getActive) async {
+    return await _tryProtectedFunction(databaseHelper.getTasks(getActive))
         as List<TaskModel>;
   }
 

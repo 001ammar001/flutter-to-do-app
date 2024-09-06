@@ -19,7 +19,7 @@ class AddNewTaskHeader extends StatelessWidget {
             ),
           ),
         ),
-        gridentIconStar(
+        GridentStar(
           startColor: Colors.yellow.shade900,
           endColor: Colors.yellow.shade200,
           size: 50.0,

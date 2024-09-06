@@ -3,97 +3,96 @@ import 'package:to_do_app/core/errors/failures.dart';
 import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/add_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/archive_task_usecase.dart';
-import 'package:to_do_app/features/to-do/domin/usecases/delete_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/delete_tasks_usecase.dart';
-import 'package:to_do_app/features/to-do/domin/usecases/get_archived_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/get_done_task_usecase.dart';
+import 'package:to_do_app/features/to-do/domin/usecases/update_task_usecase.dart';
 
 part 'task_states.dart';
 part 'task_events.dart';
 
-class TaskBloc extends Bloc<TaskEvents, TaskStates> {
-  final GetDoneTasksUseCase getDoneTasksUseCase;
+class TasksBloc extends Bloc<TaskEvents, TasksState> {
+  final GetTasksUseCase getTasksUseCase;
+  final UpdateTaskUseCase updateTaskUseCase;
   final AddTaskUseCase addTasksUseCase;
-  final DeleteTaskUseCase deleteTaskUseCase;
   final DeleteTasksUseCase deleteTasksUseCase;
-  final GetPendindTasksUseCase getPendindTasksUseCase;
   final ArchiveTasksUseCase archiveTaskUseCase;
 
-  TaskBloc({
-    required this.getDoneTasksUseCase,
+  TasksBloc({
+    required this.getTasksUseCase,
     required this.addTasksUseCase,
-    required this.deleteTaskUseCase,
     required this.deleteTasksUseCase,
-    required this.getPendindTasksUseCase,
     required this.archiveTaskUseCase,
-  }) : super(TasksInitState()) {
-    on<TaskEvents>(
-      (event, emit) async {
-        if (event is GetPedningTasksEvent) {
-          emit(TasksLoadingState());
-          final taskOrError = await getPendindTasksUseCase();
-          emit(
-            mapResultToState(
-              taskOrError,
-              TasksLodedState(taskEntity: taskOrError.right, active: true),
-            ),
-          );
-        } else if (event is GetDoneTasksEvent) {
-          emit(TasksLoadingState());
-          final taskOrError = await getDoneTasksUseCase();
-          emit(
-            mapResultToState(
-              taskOrError,
-              TasksLodedState(taskEntity: taskOrError.right, active: false),
-            ),
-          );
-        } else if (event is AddTaskEvent) {
-          emit(TasksLoadingState());
-          final addOrError = await addTasksUseCase(event.taskEntity);
-          emit(
-            mapResultToState(
-              addOrError,
-              TaskSucessState(message: "Task Addes Succesfully "),
-            ),
-          );
-        } else if (event is DeleteTaskEvent) {
-          emit(TasksLoadingState());
-          final addOrError = await deleteTaskUseCase(event.id);
-          emit(
-            mapResultToState(
-              addOrError,
-              TaskSucessState(message: "Task Deleted Succesfully "),
-            ),
-          );
-          add(GetPedningTasksEvent());
-        } else if (event is ArchiveTasksEvent) {
-          emit(TasksLoadingState());
-          final addOrError = await archiveTaskUseCase(event.ids);
-          emit(
-            mapResultToState(
-              addOrError,
-              TaskSucessState(message: "Tasks Archived Succesfully "),
-            ),
-          );
-          add(GetPedningTasksEvent());
-        } else if (event is DeleteTasksEvent) {
-          emit(TasksLoadingState());
-          final addOrError = await deleteTasksUseCase(event.ids);
-          emit(
-            mapResultToState(
-              addOrError,
-              TaskSucessState(message: "Tasks Deleted Succesfully "),
-            ),
-          );
-          add(GetPedningTasksEvent());
-        }
-      },
+    required this.updateTaskUseCase,
+  }) : super(TasksState.inital()) {
+    on<GetTasksEvent>(_getTasks);
+    on<AddTaskEvent>(_addTask);
+    on<ArchiveTasksEvent>(_archiveTasks);
+    on<DeleteTasksEvent>(_deleteTasks);
+    on<UpdateTaskEvent>(_updateTaskEvent);
+  }
+
+  Future<void> _getTasks(GetTasksEvent event, Emitter emit) async {
+    emit(state.copyWith(
+      newState: TaskStatesEnum.loading,
+      newGetActive: event.getActiveTasks,
+    ));
+
+    final taskOrError = await getTasksUseCase(state.getPending);
+
+    emit(
+      mapResultToState(
+        taskOrError,
+        state.copyWith(
+          newTasks: taskOrError.right,
+          newState: TaskStatesEnum.sucsess,
+        ),
+      ),
     );
   }
 
-  TaskStates mapResultToState(dynamic entity, TaskStates state) {
-    if (entity.runtimeType == Failure) {
-      return TaskErrorState(message: "unKnown Error");
+  Future<void> _addTask(AddTaskEvent event, Emitter emit) async {
+    final taskOrError = await addTasksUseCase(event.taskEntity);
+    taskOrError.fold(
+      (left) => emit(
+        state.copyWith(newState: TaskStatesEnum.failure, newTasks: []),
+      ),
+      (right) => add(GetTasksEvent(getActiveTasks: state.getPending)),
+    );
+  }
+
+  Future<void> _updateTaskEvent(UpdateTaskEvent event, Emitter emit) async {
+    final taskOrError = await updateTaskUseCase(event.taskEntity);
+    taskOrError.fold(
+      (left) => emit(
+        state.copyWith(newState: TaskStatesEnum.failure, newTasks: []),
+      ),
+      (right) => add(GetTasksEvent(getActiveTasks: state.getPending)),
+    );
+  }
+
+  Future<void> _archiveTasks(ArchiveTasksEvent event, Emitter emit) async {
+    final taskOrError = await archiveTaskUseCase(event.ids);
+    taskOrError.fold(
+      (left) => emit(
+        state.copyWith(newState: TaskStatesEnum.failure, newTasks: []),
+      ),
+      (right) => add(GetTasksEvent(getActiveTasks: state.getPending)),
+    );
+  }
+
+  Future<void> _deleteTasks(DeleteTasksEvent event, Emitter emit) async {
+    final taskOrError = await deleteTasksUseCase(event.ids);
+    taskOrError.fold(
+      (left) => emit(
+        state.copyWith(newState: TaskStatesEnum.failure, newTasks: []),
+      ),
+      (right) => add(GetTasksEvent(getActiveTasks: state.getPending)),
+    );
+  }
+
+  TasksState mapResultToState(dynamic result, TasksState state) {
+    if (result.runtimeType == Failure) {
+      return state.copyWith(newState: TaskStatesEnum.failure, newTasks: []);
     } else {
       return state;
     }

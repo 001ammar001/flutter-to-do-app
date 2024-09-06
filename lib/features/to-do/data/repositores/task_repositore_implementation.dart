@@ -13,7 +13,7 @@ class TaskRepositoreImplementation implements TaskRepositore {
   TaskRepositoreImplementation({required this.localDataSource});
 
   @override
-  Future<Either<Failure, void>> addTask(TaskEntity task) async {
+  Future<Either<Failure, void>> addTask(TodoEntity task) async {
     try {
       final taskModel = _mapEntityToModel(task);
       await localDataSource.addTask(taskModel);
@@ -24,15 +24,10 @@ class TaskRepositoreImplementation implements TaskRepositore {
   }
 
   @override
-  Future<Either<Failure, void>> updateTask(TaskEntity task) {
-    // TODO: implement updateTask
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<Failure, void>> deleteTask(int id) async {
+  Future<Either<Failure, void>> updateTask(TodoEntity task) async {
     try {
-      await localDataSource.deleteTask(id);
+      final taskModel = _mapEntityToModel(task);
+      await localDataSource.updateTask(taskModel);
       return const Right(null);
     } on DbException {
       return Left(DbFailure());
@@ -50,29 +45,9 @@ class TaskRepositoreImplementation implements TaskRepositore {
   }
 
   @override
-  Future<Either<Failure, List<TaskEntity>>> getPendingTasks() async {
+  Future<Either<Failure, List<TodoEntity>>> getTasks(bool getActive) async {
     try {
-      final tasks = await localDataSource.getPendingTasks();
-      return Right(tasks);
-    } on DbException {
-      return Left(DbFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, List<TaskEntity>>> getDoneTasks() async {
-    try {
-      final tasks = await localDataSource.getDoneTasks();
-      return Right(tasks);
-    } on DbException {
-      return Left(DbFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, List<TaskEntity>>> getFilterdTasks() async {
-    try {
-      final tasks = await localDataSource.getFilterdTasks();
+      final tasks = await localDataSource.getTasks(getActive);
       return Right(tasks);
     } on DbException {
       return Left(DbFailure());
@@ -89,7 +64,7 @@ class TaskRepositoreImplementation implements TaskRepositore {
     }
   }
 
-  TaskModel _mapEntityToModel(TaskEntity taskEntity) {
+  TaskModel _mapEntityToModel(TodoEntity taskEntity) {
     return TaskModel(
       id: taskEntity.id,
       title: taskEntity.title,

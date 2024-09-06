@@ -2,20 +2,22 @@ part of 'task_bloc.dart';
 
 abstract class TaskEvents {}
 
-class GetDoneTasksEvent extends TaskEvents {}
+class GetTasksEvent extends TaskEvents {
+  final bool? getActiveTasks;
 
-class GetPedningTasksEvent extends TaskEvents {}
-
-class AddTaskEvent extends TaskEvents {
-  final TaskEntity taskEntity;
-
-  AddTaskEvent({required this.taskEntity});
+  GetTasksEvent({this.getActiveTasks});
 }
 
-class DeleteTaskEvent extends TaskEvents {
-  final int id;
+class UpdateTaskEvent extends TaskEvents {
+  final TodoEntity taskEntity;
 
-  DeleteTaskEvent({required this.id});
+  UpdateTaskEvent({required this.taskEntity});
+}
+
+class AddTaskEvent extends TaskEvents {
+  final TodoEntity taskEntity;
+
+  AddTaskEvent({required this.taskEntity});
 }
 
 class DeleteTasksEvent extends TaskEvents {

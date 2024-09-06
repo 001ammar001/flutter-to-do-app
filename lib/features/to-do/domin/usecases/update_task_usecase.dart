@@ -8,7 +8,7 @@ class UpdateTaskUseCase {
 
   UpdateTaskUseCase({required this.taskRepositore});
 
-  Future<Either<Failure, void>> call(TaskEntity taskEntity) async {
+  Future<Either<Failure, void>> call(TodoEntity taskEntity) async {
     return await taskRepositore.updateTask(taskEntity);
   }
 }

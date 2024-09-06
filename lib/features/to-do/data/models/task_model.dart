@@ -2,16 +2,17 @@ import 'dart:convert';
 import 'package:to_do_app/features/to-do/data/models/tag_model.dart';
 import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
 
-class TaskModel extends TaskEntity {
-  TaskModel(
-      {super.id,
-      required super.title,
-      required super.date,
-      required super.time,
-      required super.description,
-      required super.urgent,
-      required super.done,
-      required super.tags});
+class TaskModel extends TodoEntity {
+  TaskModel({
+    super.id,
+    required super.title,
+    required super.date,
+    required super.time,
+    required super.description,
+    required super.urgent,
+    required super.done,
+    required super.tags,
+  });
 
   factory TaskModel.fromJson(Map<String, dynamic> map) {
     final tagsList = jsonDecode(map["tags"]) as List;
