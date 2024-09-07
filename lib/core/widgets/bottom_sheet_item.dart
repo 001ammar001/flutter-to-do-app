@@ -7,6 +7,7 @@ import 'package:to_do_app/core/widgets/new_task_header.dart';
 import 'package:to_do_app/core/widgets/tag_list_item.dart';
 import 'package:to_do_app/core/widgets/time_widget.dart';
 import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
+import 'package:to_do_app/features/to-do/presentation/bloc/stats_bloc/stats_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/bloc/to_do_bloc/task_bloc.dart';
 
 class AddTodoBottomSheet extends StatefulWidget {
@@ -186,11 +187,6 @@ class _AddTodoBottomSheetState extends State<AddTodoBottomSheet> {
                                 TextButton(
                                   child: const Text(
                                     "+ Add new",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
                                   ),
                                   onPressed: () {
                                     setState(
@@ -204,11 +200,6 @@ class _AddTodoBottomSheetState extends State<AddTodoBottomSheet> {
                                 TextButton(
                                   child: const Text(
                                     "+ Remove Tag",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
                                   ),
                                   onPressed: () {
                                     setState(
@@ -262,8 +253,8 @@ class _AddTodoBottomSheetState extends State<AddTodoBottomSheet> {
                                   .map((index) => tags[index])
                                   .toList(),
                             );
-                            BlocProvider.of<TasksBloc>(context).add(
-                              AddTaskEvent(taskEntity: task),
+                            BlocProvider.of<TodosBloc>(context).add(
+                              AddTodoEvent(taskEntity: task),
                             );
                             Navigator.pop(context);
                           }

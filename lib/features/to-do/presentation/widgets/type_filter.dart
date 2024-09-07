@@ -8,7 +8,7 @@ class TypeFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TasksBloc, TasksState>(
+    return BlocBuilder<TodosBloc, TodosState>(
       buildWhen: (previous, current) =>
           previous.getPending != current.getPending,
       builder: (context, state) {
@@ -40,8 +40,8 @@ class TypeFilter extends StatelessWidget {
               ),
             },
             onValueChanged: (value) {
-              context.read<TasksBloc>().add(
-                    GetTasksEvent(
+              context.read<TodosBloc>().add(
+                    GetTodosEvent(
                       getActiveTasks: value,
                     ),
                   );

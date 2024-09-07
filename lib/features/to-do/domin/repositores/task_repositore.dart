@@ -4,6 +4,7 @@ import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
 
 abstract class TaskRepositore {
   Future<Either<Failure, List<TodoEntity>>> getTasks(bool getActive);
+  Future<Either<Failure, List<TodoEntity>>> getAllTasks();
   Future<Either<Failure, void>> addTask(TodoEntity task);
   Future<Either<Failure, void>> updateTask(TodoEntity task);
   Future<Either<Failure, void>> deleteTasks(List<int> ids);

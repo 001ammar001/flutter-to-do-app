@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:to_do_app/core/widgets/painter.dart';
+import 'package:to_do_app/features/to-do/presentation/bloc/stats_bloc/stats_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/bloc/to_do_bloc/task_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/pages/stats_page.dart';
 import 'package:to_do_app/features/to-do/presentation/pages/home_page.dart';
@@ -55,7 +56,9 @@ class _ToDoPageState extends State<ToDoPage> {
                     ),
                     onPressed: () {
                       changeIndex(index);
-                      BlocProvider.of<TasksBloc>(context).add(GetTasksEvent());
+                      if (index == 1) {
+                        context.read<StatsBloc>().add(GetStatsEvent());
+                      }
                     },
                   ),
               ],

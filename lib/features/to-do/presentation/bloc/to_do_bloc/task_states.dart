@@ -2,33 +2,33 @@ part of 'task_bloc.dart';
 
 enum TaskStatesEnum { loading, sucsess, failure, init }
 
-class TasksState {
+class TodosState {
   final TaskStatesEnum state;
   final List<TodoEntity> tasks;
   final bool getPending;
   final String message;
 
-  TasksState({
+  TodosState({
     required this.state,
     required this.tasks,
     required this.getPending,
     required this.message,
   });
 
-  TasksState.inital({
+  TodosState.inital({
     this.state = TaskStatesEnum.init,
     this.getPending = true,
     this.message = "",
     tasks,
   }) : tasks = (tasks != null) ? tasks : [];
 
-  TasksState copyWith({
+  TodosState copyWith({
     TaskStatesEnum? newState,
     List<TodoEntity>? newTasks,
     bool? newGetActive,
     String? newMessage,
   }) {
-    return TasksState(
+    return TodosState(
       state: newState ?? state,
       tasks: newTasks ?? tasks,
       getPending: newGetActive ?? getPending,

@@ -6,8 +6,10 @@ import 'package:to_do_app/features/to-do/domin/repositores/task_repositore.dart'
 import 'package:to_do_app/features/to-do/domin/usecases/add_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/archive_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/delete_tasks_usecase.dart';
-import 'package:to_do_app/features/to-do/domin/usecases/get_done_task_usecase.dart';
+import 'package:to_do_app/features/to-do/domin/usecases/get_all_tasks_usecase.dart';
+import 'package:to_do_app/features/to-do/domin/usecases/get_filtared_task_usecase.dart';
 import 'package:to_do_app/features/to-do/domin/usecases/update_task_usecase.dart';
+import 'package:to_do_app/features/to-do/presentation/bloc/stats_bloc/stats_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/bloc/to_do_bloc/task_bloc.dart';
 
 final sl = GetIt.instance;
@@ -19,12 +21,6 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerLazySingleton(() => AddTaskUseCase(taskRepositore: sl()));
-  sl.registerLazySingleton(() => UpdateTaskUseCase(taskRepositore: sl()));
-  sl.registerLazySingleton(() => GetTasksUseCase(taskRepositore: sl()));
-  sl.registerLazySingleton(() => ArchiveTasksUseCase(taskRepositore: sl()));
-  sl.registerLazySingleton(() => DeleteTasksUseCase(taskRepositore: sl()));
-
   sl.registerLazySingleton(() => const DatabaseHelper());
 
   sl.registerLazySingleton<LocalDataSource>(
@@ -33,8 +29,14 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory<TasksBloc>(
-    () => TasksBloc(
+  sl.registerLazySingleton(() => AddTaskUseCase(taskRepositore: sl()));
+  sl.registerLazySingleton(() => UpdateTaskUseCase(taskRepositore: sl()));
+  sl.registerLazySingleton(() => GetTasksUseCase(taskRepositore: sl()));
+  sl.registerLazySingleton(() => ArchiveTasksUseCase(taskRepositore: sl()));
+  sl.registerLazySingleton(() => DeleteTasksUseCase(taskRepositore: sl()));
+
+  sl.registerLazySingleton<TodosBloc>(
+    () => TodosBloc(
       getTasksUseCase: sl(),
       addTasksUseCase: sl(),
       deleteTasksUseCase: sl(),
@@ -42,4 +44,8 @@ Future<void> init() async {
       updateTaskUseCase: sl(),
     ),
   );
+
+  sl.registerLazySingleton(() => GetAllTasksUseCase(taskRepositore: sl()));
+
+  sl.registerFactory(() => StatsBloc(getAllTasksUseCase: sl()));
 }

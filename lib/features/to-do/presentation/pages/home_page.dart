@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:to_do_app/features/to-do/presentation/bloc/stats_bloc/stats_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/bloc/to_do_bloc/task_bloc.dart';
 import 'package:to_do_app/features/to-do/presentation/pages/to_do_details_page.dart';
 import 'package:to_do_app/features/to-do/presentation/widgets/filter_widet.dart';
@@ -18,26 +19,25 @@ class _HomeBodyState extends State<HomeBody> {
   List<int> selectedTasksIds = [];
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TasksBloc, TasksState>(
+    return BlocListener<TodosBloc, TodosState>(
+      listenWhen: (previous, current) => current.isFailure,
       listener: (context, state) {
-        if (state.isFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.message,
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.red,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              state.message,
+              style: const TextStyle(color: Colors.white),
             ),
-          );
-        }
+            backgroundColor: Colors.red,
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BlocBuilder<TasksBloc, TasksState>(
+            BlocBuilder<TodosBloc, TodosState>(
               buildWhen: (previous, current) =>
                   previous.tasks.length != current.tasks.length,
               builder: (context, state) {
@@ -51,13 +51,13 @@ class _HomeBodyState extends State<HomeBody> {
                       IconButton(
                         onPressed: () {
                           if (state.getPending) {
-                            BlocProvider.of<TasksBloc>(context).add(
-                              ArchiveTasksEvent(ids: selectedTasksIds),
-                            );
+                            context.read<TodosBloc>().add(
+                                  ArchiveTodosEvent(ids: selectedTasksIds),
+                                );
                           } else {
-                            BlocProvider.of<TasksBloc>(context).add(
-                              DeleteTasksEvent(ids: selectedTasksIds),
-                            );
+                            context.read<TodosBloc>().add(
+                                  DeleteTodosEvent(ids: selectedTasksIds),
+                                );
                           }
                           setState(() {
                             selectedTasksIds = [];
@@ -75,7 +75,7 @@ class _HomeBodyState extends State<HomeBody> {
             const FilterWidget(),
             const TypeFilter(),
             Expanded(
-              child: BlocBuilder<TasksBloc, TasksState>(
+              child: BlocBuilder<TodosBloc, TodosState>(
                 builder: (context, state) {
                   if (state.isLoading) {
                     return const Center(
@@ -117,7 +117,7 @@ class _HomeBodyState extends State<HomeBody> {
     );
   }
 
-  void selectTaks(TasksState state, int index) {
+  void selectTaks(TodosState state, int index) {
     return setState(
       () {
         if (selectedTasksIds.contains(state.tasks[index].id)) {

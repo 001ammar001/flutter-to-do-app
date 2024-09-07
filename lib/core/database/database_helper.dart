@@ -33,7 +33,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> addTask(TaskModel task) async {
+  Future<void> addTask(TodoModel task) async {
     List jsonTags = task.tags.map((tag) {
       final tagModel = tag as TagModel;
       return tagModel.toJSon();
@@ -51,7 +51,7 @@ class DatabaseHelper {
     return Future.value();
   }
 
-  Future<void> updateTask(TaskModel task) async {
+  Future<void> updateTask(TodoModel task) async {
     List jsonTags = task.tags.map((tag) {
       final tagModel = tag as TagModel;
       return tagModel.toJSon();
@@ -74,13 +74,18 @@ class DatabaseHelper {
     return Future.value();
   }
 
-  Future<List<TaskModel>> getTasks(bool getActive) async {
+  Future<List<TodoModel>> getTasks(bool getActive) async {
     final data = await database.query(
       "tasks",
       where: "tasks.done = ?",
       whereArgs: [getActive ? 0 : 1],
     );
-    return data.map((task) => TaskModel.fromJson(task)).toList();
+    return data.map((json) => TodoModel.fromJson(json)).toList();
+  }
+
+  Future<List<TodoModel>> getAllTasks() async {
+    final data = await database.rawQuery("SELECT * FROM tasks");
+    return data.map((json) => TodoModel.fromJson(json)).toList();
   }
 
   Future<void> deleteTasks(List<int> ids) async {

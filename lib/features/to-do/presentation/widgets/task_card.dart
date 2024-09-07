@@ -70,8 +70,8 @@ class TaskCard extends StatelessWidget {
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               onPressed: () {
-                                BlocProvider.of<TasksBloc>(context)
-                                    .add(DeleteTasksEvent(ids: [task.id!]));
+                                BlocProvider.of<TodosBloc>(context)
+                                    .add(DeleteTodosEvent(ids: [task.id!]));
                               },
                               icon: const Icon(Icons.delete),
                             ),

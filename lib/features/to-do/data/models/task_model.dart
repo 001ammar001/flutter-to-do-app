@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:to_do_app/features/to-do/data/models/tag_model.dart';
 import 'package:to_do_app/features/to-do/domin/entitys/task_entity.dart';
 
-class TaskModel extends TodoEntity {
-  TaskModel({
+class TodoModel extends TodoEntity {
+  TodoModel({
     super.id,
     required super.title,
     required super.date,
@@ -14,10 +14,27 @@ class TaskModel extends TodoEntity {
     required super.tags,
   });
 
-  factory TaskModel.fromJson(Map<String, dynamic> map) {
+  factory TodoModel.fromEntity(TodoEntity todoEntity) {
+    return TodoModel(
+      id: todoEntity.id,
+      title: todoEntity.title,
+      date: todoEntity.date,
+      time: todoEntity.time,
+      description: todoEntity.description,
+      urgent: todoEntity.urgent,
+      done: todoEntity.done,
+      tags: todoEntity.tags
+          .map(
+            (tag) => TagModel(name: tag.name, color: tag.color),
+          )
+          .toList(),
+    );
+  }
+
+  factory TodoModel.fromJson(Map<String, dynamic> map) {
     final tagsList = jsonDecode(map["tags"]) as List;
 
-    return TaskModel(
+    return TodoModel(
       id: map["taskId"],
       title: map["title"],
       date: map["date"],
